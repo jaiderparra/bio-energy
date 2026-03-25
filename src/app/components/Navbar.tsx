@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 
 const links = [
   { label: 'Inicio', href: '#inicio' },
-  { label: 'Oportunidad', href: '#oportunidad' },
-  { label: 'Servicios', href: '#servicios' },
-  { label: 'Nosotros', href: '#portafolio' },
+  { label: 'El Sistema Eléctrico', href: '#oportunidad' },
+  { label: 'Capacidades', href: '#servicios' },
+  { label: 'Ciclo EPC', href: '#portafolio' },
   { label: 'Contacto', href: '#contacto' },
 ]
 
@@ -41,14 +41,14 @@ export default function Navbar() {
             borderRadius: 6,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 14, color: 'var(--yellow)', letterSpacing: '-0.02em' }}>BE</span>
+            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 13, color: 'var(--yellow)', letterSpacing: '-0.02em' }}>BE</span>
           </div>
           <div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--navy)', letterSpacing: '0.02em', lineHeight: 1 }}>
-              Bio Energy
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: scrolled ? 'var(--navy)' : 'white', letterSpacing: '0.02em', lineHeight: 1, transition: 'color 0.3s' }}>
+              BIonergy
             </div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', lineHeight: 1, marginTop: 2 }}>
-              Soluciones Inteligentes
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: scrolled ? 'var(--text-muted)' : 'rgba(255,255,255,0.65)', letterSpacing: '0.15em', textTransform: 'uppercase', lineHeight: 1, marginTop: 2, transition: 'color 0.3s' }}>
+              Sistema Eléctrico Nacional
             </div>
           </div>
         </a>
@@ -57,13 +57,9 @@ export default function Navbar() {
         <button
           onClick={() => setOpen(!open)}
           style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px',
-            display: 'flex', flexDirection: 'column', gap: 5,
-            transition: 'all 0.3s',
-            marginRight: 4,
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '8px', display: 'flex', flexDirection: 'column', gap: 5,
+            transition: 'all 0.3s', marginRight: 4,
           }}
           aria-label="Menu"
         >
@@ -76,18 +72,14 @@ export default function Navbar() {
               <span key={i} style={{
                 display: 'block', width: 22, height: 2,
                 background: scrolled ? 'var(--navy)' : 'white',
-                borderRadius: 2,
-                transition: 'all 0.3s',
-                opacity: open ? 0 : 1,
+                borderRadius: 2, transition: 'all 0.3s', opacity: open ? 0 : 1,
                 filter: scrolled ? 'none' : 'drop-shadow(0 0 3px rgba(0,0,0,0.5))',
               }} />
             ) : (
               <span key={i} style={{
                 display: 'block', width: 22, height: 2,
                 background: scrolled ? 'var(--navy)' : 'white',
-                borderRadius: 2,
-                transition: 'all 0.3s',
-                transform: transform || 'none',
+                borderRadius: 2, transition: 'all 0.3s', transform: transform || 'none',
                 filter: scrolled ? 'none' : 'drop-shadow(0 0 3px rgba(0,0,0,0.5))',
               }} />
             )
@@ -112,14 +104,11 @@ export default function Navbar() {
             href={link.href}
             onClick={() => setOpen(false)}
             style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              fontSize: 'clamp(32px, 5vw, 56px)',
+              fontFamily: 'Syne, sans-serif', fontWeight: 700,
+              fontSize: 'clamp(28px, 4.5vw, 52px)',
               color: i === 0 ? 'var(--yellow)' : 'white',
-              textDecoration: 'none',
-              letterSpacing: '-0.01em',
-              transition: 'color 0.2s',
-              lineHeight: 1.3,
+              textDecoration: 'none', letterSpacing: '-0.01em',
+              transition: 'color 0.2s', lineHeight: 1.4,
             }}
             onMouseEnter={e => (e.currentTarget.style.color = 'var(--yellow)')}
             onMouseLeave={e => (e.currentTarget.style.color = i === 0 ? 'var(--yellow)' : 'white')}

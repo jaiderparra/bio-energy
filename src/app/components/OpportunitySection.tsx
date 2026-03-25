@@ -4,42 +4,53 @@ import { useEffect, useRef, useState } from 'react'
 import { TrendingUp } from 'lucide-react'
 import { useIsMobile } from '@/lib/useIsMobile'
 
-const TOTAL = 40
-const images = Array.from({ length: TOTAL }, (_, i) => `/images/bomba/bomba-${i + 1}.jpg`)
+// ─── Imágenes alineadas 1:1 con cada step ────────────────────────────────────
+// Step 0 "Crisis SEN · Aliado 360°"           → hero5   (transformador ABB potencia)
+// Step 1 "Tres frentes de generación"          → hero13  (campo solar aéreo Colombia)
+// Step 2 "Transmisión · Metalmecánica propia"  → hero10  (técnico en subestación AT)
+// Step 3 "Alumbrado Inteligente · Eficiencia"  → hero14  (instalación solar techo ABB)
+const oppImages = [
+  '/images/electricidad/hero5.jpg',
+  '/images/electricidad/hero13.png',
+  '/images/electricidad/hero10.png',
+  '/images/electricidad/hero14.png',
+]
 
 const steps = [
-  { label: 'Bomba Centrífuga · Desarmada', title: 'Venezuela abre sus puertas al mundo.', desc: 'Con las mayores reservas probadas del planeta y un sector en plena reactivación, Venezuela representa la oportunidad más grande de la década.', stat: { v: '#1', l: 'Reservas mundiales' } },
-  { label: 'Bomba Centrífuga · Ensamblando', title: 'Los primeros en llegar definen las reglas.', desc: 'PDVSA e IOCs privadas necesitan proveedores calificados con entrega inmediata. La ventana 2025 es única.', stat: { v: '300B', l: 'Barriles probados' } },
-  { label: 'Bomba Centrífuga · Casi lista', title: 'Colombia es la puerta de entrada.', desc: 'Proximidad geográfica, cultural y logística que los competidores internacionales no tienen.', stat: { v: '>10x', l: 'Potencial de producción' } },
-  { label: 'Bomba Centrífuga · Operativa', title: 'Posiciónese ahora.', desc: 'Bio Energy lleva soluciones probadas a un sector que requiere proveedores confiables de alto estándar técnico.', stat: { v: '2025', l: 'Ventana óptima' } },
+  {
+    label: 'Sistema Eléctrico Nacional · Crisis',
+    title: 'Venezuela necesita un aliado 360° para su sistema eléctrico.',
+    desc: 'El SEN enfrenta una crisis estructural. BIonergy no es un intermediario: es el consorcio con capacidad real de ingeniería, construcción y operación para acelerar su recuperación.',
+    stat: { v: '360°', l: 'Aliado integral' },
+  },
+  {
+    label: 'Generación · Diversificación Urgente',
+    title: 'Tres frentes críticos de generación.',
+    desc: 'Hidráulica para aliviar el Bajo Caroní. Fotovoltaica de rápido despliegue en Zulia y Falcón. Respaldo térmico para garantizar el baseload ante contingencias. BIonergy cubre los tres.',
+    stat: { v: '3', l: 'Fuentes de generación' },
+  },
+  {
+    label: 'Transmisión · Metalmecánica Propia',
+    title: 'La cadena completa. Ningún eslabón faltante.',
+    desc: 'Fabricación propia de torres y pórticos de alta tensión. Tendido de líneas. Construcción y modernización de subestaciones. Menos costos de importación, menos tiempos de espera.',
+    stat: { v: 'AT/MT/BT', l: 'Redes eléctricas' },
+  },
+  {
+    label: 'Alumbrado Inteligente · Eficiencia',
+    title: 'Alumbrado que libera capacidad para el país.',
+    desc: 'Modernización de autopistas y vías expresas con tecnología fotovoltaica. El alumbrado se desconecta de la red principal, liberando MW que pueden redirigirse a zonas residenciales e industriales.',
+    stat: { v: 'LED', l: 'Gestión remota' },
+  },
 ]
 
 export default function OpportunitySection() {
-  const [currentImg, setCurrentImg] = useState(0)
-  const [nextImg, setNextImg] = useState<number | null>(null)
-  const [fadeOpacity, setFadeOpacity] = useState(0)
   const [textStep, setTextStep] = useState(0)
   const [progress, setProgress] = useState(0)
-  const [allLoaded, setAllLoaded] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const lastStep = useRef(0)
-  const loadedCount = useRef(0)
   const isMobile = useIsMobile()
 
   useEffect(() => {
-    let mounted = true
-    loadedCount.current = 0
-    images.forEach((src) => {
-      const img = new window.Image()
-      img.onload = () => { loadedCount.current++; if (mounted && loadedCount.current === TOTAL) setAllLoaded(true) }
-      img.onerror = () => { loadedCount.current++; if (mounted && loadedCount.current === TOTAL) setAllLoaded(true) }
-      img.src = src
-    })
-    return () => { mounted = false }
-  }, [])
-
-  useEffect(() => {
-    if (!allLoaded) return
     const handleScroll = () => {
       const container = containerRef.current
       if (!container) return
@@ -47,21 +58,17 @@ export default function OpportunitySection() {
       const total = container.offsetHeight - window.innerHeight
       const p = Math.max(0, Math.min(1, -rect.top / total))
       setProgress(p)
-      const exactIndex = p * (TOTAL - 1)
-      const cur = Math.floor(exactIndex)
-      const fraction = exactIndex - cur
-      if (cur < TOTAL - 1) { setCurrentImg(cur); setNextImg(cur + 1); setFadeOpacity(fraction) }
-      else { setCurrentImg(TOTAL - 1); setNextImg(null); setFadeOpacity(0) }
       const s = Math.min(steps.length - 1, Math.floor(p * steps.length))
       if (s !== lastStep.current) { lastStep.current = s; setTextStep(s) }
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [allLoaded])
+  }, [])
 
   const step = steps[textStep]
   const pct = Math.round(progress * 100)
+  const imgIndex = textStep // 1:1 imagen ↔ step
 
   return (
     <>
@@ -90,52 +97,53 @@ export default function OpportunitySection() {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        .opp-img-slide {
+          position: absolute; inset: 0;
+          transition: opacity 0.5s ease;
+        }
       `}</style>
 
-      <section id="oportunidad" ref={containerRef} style={{ height: isMobile ? '400vh' : '200vh', position: 'relative' }}>
+      <section id="oportunidad" ref={containerRef} style={{ height: `${steps.length * 100}vh`, position: 'relative' }}>
         <div id="opp-sticky">
 
-          {/* IMAGE */}
-          <div id="opp-image" style={{ position: 'relative', background: '#0e2248', overflow: 'hidden', touchAction: 'pan-y' }}>
-            {!allLoaded && (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Cargando...</span>
+          {/* ── IMAGE ── */}
+          <div id="opp-image" style={{ position: 'relative', background: '#0e2248', overflow: 'hidden' }}>
+            {oppImages.map((src, i) => (
+              <div key={i} className="opp-img-slide" style={{ opacity: i === imgIndex ? 1 : 0 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={steps[i].label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(14,34,72,0.2), rgba(14,34,72,0.6))' }} />
               </div>
-            )}
-            {allLoaded && images.map((src, i) => {
-              if (Math.abs(i - currentImg) > 2) return null
-              let opacity = 0
-              if (i === currentImg) opacity = nextImg !== null ? 1 - fadeOpacity : 1
-              else if (i === nextImg) opacity = fadeOpacity
-              if (opacity === 0) return null
-              return (
-                <div key={i} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '12%', opacity }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`Bomba frame ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: isMobile ? '10px' : '40px', display: 'block' }} />
-                </div>
-              )
-            })}
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '12%', background: '#0e2248', pointerEvents: 'none' }} />
+            ))}
 
-            {/* Stat */}
+            {/* Stat overlay */}
             <div style={{ position: 'absolute', top: isMobile ? 10 : 32, left: isMobile ? 14 : 32, zIndex: 2 }}>
-              <div key={`stat-${textStep}`} style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: isMobile ? 24 : 'clamp(32px, 4vw, 52px)', color: 'var(--yellow)', lineHeight: 1, animation: 'fadeUp 0.4s ease forwards' }}>
+              <div
+                key={`stat-${textStep}`}
+                style={{
+                  fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                  fontSize: isMobile ? 24 : 'clamp(32px, 4vw, 52px)',
+                  color: 'var(--yellow)', lineHeight: 1,
+                  animation: 'fadeUp 0.4s ease forwards',
+                }}
+              >
                 {step.stat.v}
               </div>
-              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 3 }}>
+              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 3 }}>
                 {step.stat.l}
               </div>
             </div>
 
+            {/* Progress bar bottom */}
             <div style={{ position: 'absolute', bottom: 18, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 70, height: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 1, overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${pct}%`, background: 'var(--yellow)', transition: 'width 0.1s linear' }} />
               </div>
-              <span style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Ensamblado · {pct}%</span>
+              <span style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>SEN · Venezuela</span>
             </div>
           </div>
 
-          {/* TEXT */}
+          {/* ── TEXT ── */}
           <div id="opp-text" style={{
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
             padding: 'clamp(20px, 4vw, 64px)',
@@ -143,32 +151,47 @@ export default function OpportunitySection() {
             borderLeft: '1px solid var(--border)',
             position: 'relative', overflow: 'hidden', minWidth: 0,
           }}>
+            {/* Progress bar top */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'var(--gray-100)' }}>
               <div style={{ height: '100%', width: `${pct}%`, background: 'var(--navy)', transition: 'width 0.1s linear' }} />
             </div>
 
+            {/* Step dots */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 'clamp(8px, 1.5vh, 20px)' }}>
               {steps.map((_, i) => (
-                <div key={i} style={{ width: i === textStep ? 20 : 6, height: 6, borderRadius: 3, background: i === textStep ? 'var(--navy)' : 'var(--gray-200)', transition: 'all 0.4s ease' }} />
+                <div key={i} style={{
+                  width: i === textStep ? 20 : 6, height: 6, borderRadius: 3,
+                  background: i === textStep ? 'var(--navy)' : 'var(--gray-200)',
+                  transition: 'all 0.4s ease',
+                }} />
               ))}
             </div>
 
-            <div className="label" style={{ marginBottom: 'clamp(6px, 1vh, 12px)', fontSize: 'clamp(0.55rem, 1.2vw, 0.68rem)' }}>{step.label}</div>
+            <div className="label" style={{ marginBottom: 'clamp(6px, 1vh, 12px)', fontSize: 'clamp(0.55rem, 1.2vw, 0.68rem)' }}>
+              {step.label}
+            </div>
 
-            <h2 key={`t-${textStep}`} className="font-display" style={{
-              fontSize: 'clamp(20px, 3.5vw, 48px)', fontWeight: 800, lineHeight: 1.08,
-              color: 'var(--navy)', letterSpacing: '-0.02em',
-              marginBottom: 'clamp(8px, 1.5vh, 16px)', wordBreak: 'break-word',
-              animation: 'fadeUp 0.45s ease forwards',
-            }}>
+            <h2
+              key={`t-${textStep}`}
+              className="font-display"
+              style={{
+                fontSize: 'clamp(20px, 3.2vw, 44px)', fontWeight: 800, lineHeight: 1.08,
+                color: 'var(--navy)', letterSpacing: '-0.02em',
+                marginBottom: 'clamp(8px, 1.5vh, 16px)', wordBreak: 'break-word',
+                animation: 'fadeUp 0.45s ease forwards',
+              }}
+            >
               {step.title}
             </h2>
 
-            <p key={`d-${textStep}`} style={{
-              fontSize: 'clamp(11px, 1.3vw, 15px)', lineHeight: 1.65, color: 'var(--text-muted)',
-              marginBottom: 'clamp(12px, 2vh, 24px)',
-              animation: 'fadeUp 0.45s ease 0.08s forwards',
-            }}>
+            <p
+              key={`d-${textStep}`}
+              style={{
+                fontSize: 'clamp(11px, 1.3vw, 15px)', lineHeight: 1.7, color: 'var(--text-muted)',
+                marginBottom: 'clamp(12px, 2vh, 24px)',
+                animation: 'fadeUp 0.45s ease 0.08s forwards',
+              }}
+            >
               {step.desc}
             </p>
 
