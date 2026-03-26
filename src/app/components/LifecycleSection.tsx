@@ -44,12 +44,13 @@ const phases = [
 
 export default function LifecycleSection() {
   const [active, setActive] = useState(0)
+  const [visible, setVisible] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) { /* trigger seen */ } },
-      { threshold: 0.2 }
+      (entries) => { if (entries[0].isIntersecting) setVisible(true) },
+      { threshold: 0.1 }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
@@ -59,138 +60,271 @@ export default function LifecycleSection() {
   const PhIcon = ph.icon
 
   return (
-    <section
-      id="portafolio"
-      ref={sectionRef}
-      style={{
-        borderTop: '1px solid var(--border)',
-        background: 'var(--navy)',
-        padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)',
-      }}
-    >
-      {/* Header */}
-      <div style={{ maxWidth: 900, margin: '0 auto', marginBottom: 'clamp(40px, 6vw, 72px)' }}>
-        <div className="label" style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 16, fontSize: '0.65rem' }}>
-          BIonergy · Consorcio Integral
-        </div>
-        <h2 className="font-display" style={{
-          fontSize: 'clamp(28px, 5vw, 64px)', fontWeight: 800,
-          color: 'white', lineHeight: 1.05, letterSpacing: '-0.02em',
-          marginBottom: 20,
-        }}>
-          De la ingeniería al mantenimiento.
-          <br />
-          <span style={{ color: 'var(--yellow)' }}>Sin intermediarios.</span>
-        </h2>
-        <p style={{ fontSize: 'clamp(13px, 1.5vw, 16px)', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, maxWidth: 620 }}>
-          No solo somos constructores; somos operadores. BIonergy asume la responsabilidad del ciclo de vida completo, garantizando que cada bolívar invertido se traduzca en estabilidad eléctrica real.
-        </p>
-      </div>
+    <>
+      <style>{`
+        /* ── Phase selector grid ── */
+        #lifecycle-phases {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 4px;
+          margin-bottom: 24px;
+        }
 
-      {/* Phase selector */}
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 32 }}>
-          {phases.map((p, i) => {
-            const PIcon = p.icon
-            return (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
-                style={{
-                  background: i === active ? 'rgba(255,255,255,0.08)' : 'transparent',
-                  border: `1px solid ${i === active ? p.color : 'rgba(255,255,255,0.1)'}`,
-                  borderRadius: 8,
-                  padding: 'clamp(12px, 2vw, 20px)',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.3s',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <div style={{
-                    width: 30, height: 30, borderRadius: 6,
-                    background: i === active ? p.color : 'rgba(255,255,255,0.06)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'all 0.3s',
-                  }}>
-                    <PIcon size={14} color={i === active ? 'white' : 'rgba(255,255,255,0.3)'} />
-                  </div>
-                  <span style={{ fontSize: 8, fontWeight: 700, color: i === active ? p.color : 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                    Fase {p.code}
-                  </span>
-                </div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 'clamp(11px, 1.2vw, 14px)', color: i === active ? 'white' : 'rgba(255,255,255,0.4)', transition: 'color 0.3s' }}>
-                  {p.phase}
-                </div>
-              </button>
-            )
-          })}
-        </div>
+        /* ── Active detail grid: 2 cols on desktop ── */
+        #lifecycle-detail {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: clamp(20px, 3vw, 48px);
+          background: rgba(255,255,255,0.04);
+          border-radius: 12px;
+          padding: clamp(20px, 4vw, 48px);
+        }
 
-        {/* Active phase detail */}
+        /* ── TABLET ── */
+        @media (max-width: 900px) {
+          #lifecycle-phases {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+          }
+          #lifecycle-detail {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 540px) {
+          #lifecycle-phases {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 6px !important;
+          }
+          #lifecycle-phase-btn {
+            padding: 12px !important;
+          }
+          #lifecycle-detail {
+            padding: 18px !important;
+          }
+          #lifecycle-header h2 {
+            font-size: clamp(26px, 7vw, 44px) !important;
+          }
+        }
+
+        @keyframes fadeUpLC {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .lifecycle-detail-anim {
+          animation: fadeUpLC 0.4s ease forwards;
+        }
+      `}</style>
+
+      <section
+        id="portafolio"
+        ref={sectionRef}
+        style={{
+          borderTop: '1px solid var(--border)',
+          background: 'var(--navy)',
+          padding: 'clamp(48px, 8vw, 100px) clamp(20px, 5vw, 80px)',
+        }}
+      >
+        {/* ── Header ── */}
         <div
-          key={active}
+          id="lifecycle-header"
           style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 'clamp(24px, 3vw, 48px)',
-            background: 'rgba(255,255,255,0.04)',
-            border: `1px solid ${ph.color}33`,
-            borderRadius: 12,
-            padding: 'clamp(24px, 4vw, 48px)',
-            animation: 'fadeUpSvc 0.4s ease forwards',
+            maxWidth: 900, margin: '0 auto',
+            marginBottom: 'clamp(32px, 6vw, 72px)',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
           }}
         >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <div style={{ width: 48, height: 48, borderRadius: 10, background: ph.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <PhIcon size={22} color="white" />
-              </div>
-              <div>
-                <div style={{ fontSize: 8, fontWeight: 700, color: ph.color, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-                  Fase {ph.code} · {ph.phase}
-                </div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(16px, 2vw, 22px)', color: 'white' }}>
-                  {ph.title}
-                </div>
-              </div>
-            </div>
-            <p style={{ fontSize: 'clamp(12px, 1.3vw, 15px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.75 }}>
-              {ph.desc}
-            </p>
+          <div className="label" style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 16, fontSize: '0.65rem' }}>
+            BIonergy · Consorcio Integral
           </div>
-
-          <div>
-            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
-              Capacidades específicas
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {ph.items.map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: ph.color, marginTop: 6, flexShrink: 0 }} />
-                  <span style={{ fontSize: 'clamp(11px, 1.2vw, 14px)', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Quote */}
-        <div style={{ marginTop: 40, textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 40 }}>
+          <h2
+            className="font-display"
+            style={{
+              fontSize: 'clamp(26px, 5vw, 64px)',
+              fontWeight: 800,
+              color: 'white',
+              lineHeight: 1.05,
+              letterSpacing: '-0.02em',
+              marginBottom: 20,
+              wordBreak: 'break-word',
+            }}
+          >
+            De la ingeniería al mantenimiento.
+            <br />
+            <span style={{ color: 'var(--yellow)' }}>Sin intermediarios.</span>
+          </h2>
           <p style={{
-            fontFamily: 'Syne, sans-serif', fontWeight: 700,
-            fontSize: 'clamp(14px, 2vw, 20px)',
-            color: 'rgba(255,255,255,0.7)',
-            lineHeight: 1.6,
-            maxWidth: 700,
-            margin: '0 auto',
-            fontStyle: 'italic',
+            fontSize: 'clamp(12px, 1.5vw, 16px)',
+            color: 'rgba(255,255,255,0.55)',
+            lineHeight: 1.7,
+            maxWidth: 620,
           }}>
-            "No solo somos constructores; somos operadores. BIonergy asume la responsabilidad del ciclo de vida completo: Diseño, Construcción, Puesta en Marcha y Mantenimiento Post-Venta."
+            No solo somos constructores; somos operadores. BIonergy asume la responsabilidad del ciclo de vida completo, garantizando que cada bolívar invertido se traduzca en estabilidad eléctrica real.
           </p>
-          <div style={{ width: 40, height: 2, background: 'var(--yellow)', margin: '20px auto 0' }} />
         </div>
-      </div>
-    </section>
+
+        {/* ── Main content ── */}
+        <div
+          style={{
+            maxWidth: 1100, margin: '0 auto',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(24px)',
+            transition: 'opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s',
+          }}
+        >
+          {/* Phase selector */}
+          <div id="lifecycle-phases">
+            {phases.map((p, i) => {
+              const PIcon = p.icon
+              const isActive = i === active
+              return (
+                <button
+                  key={i}
+                  id="lifecycle-phase-btn"
+                  onClick={() => setActive(i)}
+                  style={{
+                    background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    border: `1px solid ${isActive ? p.color : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: 8,
+                    padding: 'clamp(12px, 2vw, 20px)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.3s',
+                    width: '100%',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <div style={{
+                      width: 30, height: 30, borderRadius: 6, flexShrink: 0,
+                      background: isActive ? p.color : 'rgba(255,255,255,0.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all 0.3s',
+                    }}>
+                      <PIcon size={14} color={isActive ? 'white' : 'rgba(255,255,255,0.3)'} />
+                    </div>
+                    <span style={{
+                      fontSize: 8, fontWeight: 700,
+                      color: isActive ? p.color : 'rgba(255,255,255,0.25)',
+                      letterSpacing: '0.12em', textTransform: 'uppercase',
+                    }}>
+                      Fase {p.code}
+                    </span>
+                  </div>
+                  <div style={{
+                    fontFamily: 'Syne, sans-serif', fontWeight: 700,
+                    fontSize: 'clamp(11px, 1.2vw, 14px)',
+                    color: isActive ? 'white' : 'rgba(255,255,255,0.4)',
+                    transition: 'color 0.3s',
+                    lineHeight: 1.3,
+                  }}>
+                    {p.phase}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Active phase detail */}
+          <div
+            key={active}
+            id="lifecycle-detail"
+            className="lifecycle-detail-anim"
+            style={{ border: `1px solid ${ph.color}33` }}
+          >
+            {/* Left: description */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 10, flexShrink: 0,
+                  background: ph.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <PhIcon size={22} color="white" />
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: 8, fontWeight: 700, color: ph.color,
+                    letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4,
+                  }}>
+                    Fase {ph.code} · {ph.phase}
+                  </div>
+                  <div style={{
+                    fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                    fontSize: 'clamp(15px, 2vw, 22px)',
+                    color: 'white', lineHeight: 1.2,
+                  }}>
+                    {ph.title}
+                  </div>
+                </div>
+              </div>
+              <p style={{
+                fontSize: 'clamp(12px, 1.3vw, 15px)',
+                color: 'rgba(255,255,255,0.6)',
+                lineHeight: 1.75,
+              }}>
+                {ph.desc}
+              </p>
+            </div>
+
+            {/* Right: capabilities list */}
+            <div>
+              <div style={{
+                fontSize: 8, fontWeight: 700,
+                color: 'rgba(255,255,255,0.3)',
+                letterSpacing: '0.12em', textTransform: 'uppercase',
+                marginBottom: 16,
+              }}>
+                Capacidades específicas
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {ph.items.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                    <div style={{
+                      width: 5, height: 5, borderRadius: '50%',
+                      background: ph.color, marginTop: 6, flexShrink: 0,
+                    }} />
+                    <span style={{
+                      fontSize: 'clamp(11px, 1.2vw, 14px)',
+                      color: 'rgba(255,255,255,0.65)',
+                      lineHeight: 1.5,
+                    }}>
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quote */}
+          <div style={{
+            marginTop: 40,
+            textAlign: 'center',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            paddingTop: 40,
+            opacity: visible ? 1 : 0,
+            transition: 'opacity 0.6s ease 0.3s',
+          }}>
+            <p style={{
+              fontFamily: 'Syne, sans-serif', fontWeight: 700,
+              fontSize: 'clamp(13px, 2vw, 20px)',
+              color: 'rgba(255,255,255,0.7)',
+              lineHeight: 1.6,
+              maxWidth: 700,
+              margin: '0 auto',
+              fontStyle: 'italic',
+              padding: '0 clamp(0px, 2vw, 20px)',
+            }}>
+             No solo somos constructores; somos operadores. BIonergy asume la responsabilidad del ciclo de vida completo: Diseño, Construcción, Puesta en Marcha y Mantenimiento Post-Venta.
+            </p>
+            <div style={{ width: 40, height: 2, background: 'var(--yellow)', margin: '20px auto 0' }} />
+          </div>
+        </div>
+      </section>
+    </>
   )
 }
