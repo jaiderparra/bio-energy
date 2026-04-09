@@ -42,6 +42,21 @@ const phases = [
   },
 ]
 
+// ── 9 logos distribuidos en 3 grupos de 3 ────────────────────────────────────
+// Cada grupo se muestra en la sección del carrusel correspondiente
+// Aquí los mostramos todos como vitrina del consorcio
+const logos = [
+  { src: '/images/electricidad/iticcol.png',     name: 'Iticcol',       bg: '#fff' },
+  { src: '/images/electricidad/M&AC.png',         name: 'M&AC',          bg: '#f0f4f8' },
+  { src: '/images/electricidad/incelcime.png',    name: 'Inelcime SAS',  bg: '#f0f4f8' },
+  { src: '/images/electricidad/procme.png',       name: 'Procme',        bg: '#f5c800' },
+  { src: '/images/electricidad/skidexperts.png',  name: 'Skid Experts',  bg: '#c8d400' },
+  { src: '/images/electricidad/porta.png',        name: 'Porta',         bg: '#111' },
+  { src: '/images/electricidad/globalem.png',     name: 'Globalem',      bg: '#fff' },
+  { src: '/images/electricidad/copower.png',      name: 'Copower',       bg: '#fff' },
+  { src: '/images/electricidad/cme.png',          name: 'CME Procme',    bg: '#fff' },
+]
+
 export default function LifecycleSection() {
   const [active, setActive] = useState(0)
   const [visible, setVisible] = useState(false)
@@ -62,15 +77,12 @@ export default function LifecycleSection() {
   return (
     <>
       <style>{`
-        /* ── Phase selector grid ── */
         #lifecycle-phases {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 4px;
           margin-bottom: 24px;
         }
-
-        /* ── Active detail grid: 2 cols on desktop ── */
         #lifecycle-detail {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -79,8 +91,6 @@ export default function LifecycleSection() {
           border-radius: 12px;
           padding: clamp(20px, 4vw, 48px);
         }
-
-        /* ── TABLET ── */
         @media (max-width: 900px) {
           #lifecycle-phases {
             grid-template-columns: repeat(2, 1fr) !important;
@@ -91,31 +101,57 @@ export default function LifecycleSection() {
             gap: 20px !important;
           }
         }
-
-        /* ── MOBILE ── */
         @media (max-width: 540px) {
           #lifecycle-phases {
             grid-template-columns: 1fr 1fr !important;
             gap: 6px !important;
           }
-          #lifecycle-phase-btn {
-            padding: 12px !important;
-          }
-          #lifecycle-detail {
-            padding: 18px !important;
-          }
-          #lifecycle-header h2 {
-            font-size: clamp(26px, 7vw, 44px) !important;
-          }
+          #lifecycle-detail { padding: 18px !important; }
+          #lifecycle-header h2 { font-size: clamp(26px, 7vw, 44px) !important; }
+        }
+
+        /* ── Logos grid ── */
+        #logos-grid {
+          display: grid;
+          grid-template-columns: repeat(9, 1fr);
+          gap: 10px;
+          margin-top: 40px;
+        }
+        @media (max-width: 900px) {
+          #logos-grid { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+        @media (max-width: 540px) {
+          #logos-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+        }
+
+        .logo-card {
+          border-radius: 8px;
+          padding: 12px 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(255,255,255,0.07);
+          transition: all 0.25s ease;
+          overflow: hidden;
+          aspect-ratio: 3/2;
+        }
+        .logo-card:hover {
+          border-color: rgba(245,200,66,0.25);
+          transform: translateY(-2px);
+        }
+        .logo-card img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          filter: none;
+          transition: filter 0.25s;
         }
 
         @keyframes fadeUpLC {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .lifecycle-detail-anim {
-          animation: fadeUpLC 0.4s ease forwards;
-        }
+        .lifecycle-detail-anim { animation: fadeUpLC 0.4s ease forwards; }
       `}</style>
 
       <section
@@ -145,12 +181,9 @@ export default function LifecycleSection() {
             className="font-display"
             style={{
               fontSize: 'clamp(26px, 5vw, 64px)',
-              fontWeight: 800,
-              color: 'white',
-              lineHeight: 1.05,
-              letterSpacing: '-0.02em',
-              marginBottom: 20,
-              wordBreak: 'break-word',
+              fontWeight: 800, color: 'white',
+              lineHeight: 1.05, letterSpacing: '-0.02em',
+              marginBottom: 20, wordBreak: 'break-word',
             }}
           >
             De la ingeniería al mantenimiento.
@@ -159,9 +192,7 @@ export default function LifecycleSection() {
           </h2>
           <p style={{
             fontSize: 'clamp(12px, 1.5vw, 16px)',
-            color: 'rgba(255,255,255,0.55)',
-            lineHeight: 1.7,
-            maxWidth: 620,
+            color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, maxWidth: 620,
           }}>
             No solo somos constructores; somos operadores. BIonergy asume la responsabilidad del ciclo de vida completo, garantizando que cada bolívar invertido se traduzca en estabilidad eléctrica real.
           </p>
@@ -184,17 +215,14 @@ export default function LifecycleSection() {
               return (
                 <button
                   key={i}
-                  id="lifecycle-phase-btn"
                   onClick={() => setActive(i)}
                   style={{
                     background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
                     border: `1px solid ${isActive ? p.color : 'rgba(255,255,255,0.1)'}`,
                     borderRadius: 8,
                     padding: 'clamp(12px, 2vw, 20px)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.3s',
-                    width: '100%',
+                    cursor: 'pointer', textAlign: 'left',
+                    transition: 'all 0.3s', width: '100%',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -206,11 +234,7 @@ export default function LifecycleSection() {
                     }}>
                       <PIcon size={14} color={isActive ? 'white' : 'rgba(255,255,255,0.3)'} />
                     </div>
-                    <span style={{
-                      fontSize: 8, fontWeight: 700,
-                      color: isActive ? p.color : 'rgba(255,255,255,0.25)',
-                      letterSpacing: '0.12em', textTransform: 'uppercase',
-                    }}>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: isActive ? p.color : 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                       Fase {p.code}
                     </span>
                   </div>
@@ -218,8 +242,7 @@ export default function LifecycleSection() {
                     fontFamily: 'Syne, sans-serif', fontWeight: 700,
                     fontSize: 'clamp(11px, 1.2vw, 14px)',
                     color: isActive ? 'white' : 'rgba(255,255,255,0.4)',
-                    transition: 'color 0.3s',
-                    lineHeight: 1.3,
+                    transition: 'color 0.3s', lineHeight: 1.3,
                   }}>
                     {p.phase}
                   </div>
@@ -246,52 +269,29 @@ export default function LifecycleSection() {
                   <PhIcon size={22} color="white" />
                 </div>
                 <div>
-                  <div style={{
-                    fontSize: 8, fontWeight: 700, color: ph.color,
-                    letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4,
-                  }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: ph.color, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
                     Fase {ph.code} · {ph.phase}
                   </div>
-                  <div style={{
-                    fontFamily: 'Syne, sans-serif', fontWeight: 800,
-                    fontSize: 'clamp(15px, 2vw, 22px)',
-                    color: 'white', lineHeight: 1.2,
-                  }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(15px, 2vw, 22px)', color: 'white', lineHeight: 1.2 }}>
                     {ph.title}
                   </div>
                 </div>
               </div>
-              <p style={{
-                fontSize: 'clamp(12px, 1.3vw, 15px)',
-                color: 'rgba(255,255,255,0.6)',
-                lineHeight: 1.75,
-              }}>
+              <p style={{ fontSize: 'clamp(12px, 1.3vw, 15px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.75 }}>
                 {ph.desc}
               </p>
             </div>
 
-            {/* Right: capabilities list */}
+            {/* Right: capabilities */}
             <div>
-              <div style={{
-                fontSize: 8, fontWeight: 700,
-                color: 'rgba(255,255,255,0.3)',
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-                marginBottom: 16,
-              }}>
+              <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
                 Capacidades específicas
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {ph.items.map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                    <div style={{
-                      width: 5, height: 5, borderRadius: '50%',
-                      background: ph.color, marginTop: 6, flexShrink: 0,
-                    }} />
-                    <span style={{
-                      fontSize: 'clamp(11px, 1.2vw, 14px)',
-                      color: 'rgba(255,255,255,0.65)',
-                      lineHeight: 1.5,
-                    }}>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: ph.color, marginTop: 6, flexShrink: 0 }} />
+                    <span style={{ fontSize: 'clamp(11px, 1.2vw, 14px)', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
                       {item}
                     </span>
                   </div>
@@ -300,28 +300,95 @@ export default function LifecycleSection() {
             </div>
           </div>
 
-          {/* Quote */}
+          {/* ── Quote actualizado + logos ── */}
           <div style={{
             marginTop: 40,
-            textAlign: 'center',
             borderTop: '1px solid rgba(255,255,255,0.08)',
             paddingTop: 40,
             opacity: visible ? 1 : 0,
             transition: 'opacity 0.6s ease 0.3s',
           }}>
-            <p style={{
-              fontFamily: 'Syne, sans-serif', fontWeight: 700,
-              fontSize: 'clamp(13px, 2vw, 20px)',
-              color: 'rgba(255,255,255,0.7)',
-              lineHeight: 1.6,
-              maxWidth: 700,
-              margin: '0 auto',
-              fontStyle: 'italic',
-              padding: '0 clamp(0px, 2vw, 20px)',
+
+            {/* Quote row: icono + texto */}
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 20,
+              maxWidth: 820, margin: '0 auto',
+              flexWrap: 'wrap',
             }}>
-             No solo somos constructores; somos operadores. BIonergy asume la responsabilidad del ciclo de vida completo: Diseño, Construcción, Puesta en Marcha y Mantenimiento Post-Venta.
-            </p>
-            <div style={{ width: 40, height: 2, background: 'var(--yellow)', margin: '20px auto 0' }} />
+              {/* Icono consorcio */}
+              <div style={{
+                flexShrink: 0,
+                width: 56, height: 56,
+                borderRadius: 12,
+                background: 'rgba(245,200,66,0.08)',
+                border: '1px solid rgba(245,200,66,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {/* Network / consorcio icon SVG */}
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="5"  r="2"/>
+                  <circle cx="5"  cy="19" r="2"/>
+                  <circle cx="19" cy="19" r="2"/>
+                  <line x1="12" y1="7"  x2="5"  y2="17"/>
+                  <line x1="12" y1="7"  x2="19" y2="17"/>
+                  <line x1="5"  y1="19" x2="19" y2="19"/>
+                </svg>
+              </div>
+
+              <div style={{ flex: 1, minWidth: 220 }}>
+                {/* Stat */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <span style={{
+                    fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                    fontSize: 'clamp(28px, 4vw, 42px)',
+                    color: 'var(--yellow)', lineHeight: 1,
+                  }}>
+                    +10
+                  </span>
+                  <span style={{ fontSize: 'clamp(11px, 1.3vw, 14px)', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
+                    compañías<br />aliadas
+                  </span>
+                </div>
+
+                {/* Texto actualizado */}
+                <p style={{
+                  fontFamily: 'Syne, sans-serif', fontWeight: 600,
+                  fontSize: 'clamp(13px, 1.8vw, 18px)',
+                  color: 'rgba(255,255,255,0.75)',
+                  lineHeight: 1.65,
+                  fontStyle: 'italic',
+                }}>
+                  Representamos a más de 10 compañías, permitiéndonos dar soluciones inteligentes y eficientes a las diferentes demandas de los sistemas eléctricos desde la planificación hasta el mantenimiento.
+                </p>
+                <div style={{ width: 40, height: 2, background: 'var(--yellow)', marginTop: 16 }} />
+              </div>
+            </div>
+
+            {/* ── Logos grid ── */}
+            <div style={{ marginTop: 32 }}>
+              <div style={{
+                fontSize: 9, fontWeight: 700, letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)',
+                textAlign: 'center', marginBottom: 16,
+              }}>
+                Empresas del consorcio
+              </div>
+
+              <div id="logos-grid">
+                {logos.map((logo, i) => (
+                  <div
+                    key={i}
+                    className="logo-card"
+                    style={{ background: logo.bg }}
+                    title={logo.name}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={logo.src} alt={logo.name} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
